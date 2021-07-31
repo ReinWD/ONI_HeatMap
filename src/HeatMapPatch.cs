@@ -1,8 +1,8 @@
 using HarmonyLib;
 
-namespace HeatMapEnhanced
+namespace reinwd.HeatMap
 {
-	public class HeatMap
+	public class HeatMapPatch
 	{
 		[HarmonyPatch(typeof(OverlayModes.Temperature))]
 		[HarmonyPatch("Enable")]
@@ -48,9 +48,17 @@ namespace HeatMapEnhanced
 		
 		}
 
-		public static void showUI(){}
+		public static void showUI(){
+			if(!uiInited){
+				initUI();
+			}
+		}
 
 		public static void hideUI(){}
+
+		public static void initUI(){
+			
+		}
 		
 		[HarmonyPatch(typeof(OverlayModes.Temperature))]
 		[HarmonyPatch("Disable")]
