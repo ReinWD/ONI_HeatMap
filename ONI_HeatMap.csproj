@@ -43,16 +43,6 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>..\lib\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="PLib">
-      <HintPath>..\lib\PLib.dll</HintPath>
-    </Reference>
-
     <Reference Include="UnityEngine">
       <HintPath>..\lib\UnityEngine.dll</HintPath>
     </Reference>
@@ -62,9 +52,27 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>..\lib\UnityEngine.UI.dll</HintPath>
     </Reference>
+        <Reference Include="UnityEngine.UIModule">
+      <HintPath>..\lib\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
+     <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>..\lib\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="PLib">
+      <HintPath>..\lib\PLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+
+
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src/*" />
+    <Compile Include="src/HeatMapControl.cs" />
+    <Compile Include="src/HeatMapPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
