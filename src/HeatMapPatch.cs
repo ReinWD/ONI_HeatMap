@@ -11,9 +11,37 @@ namespace reinwd.HeatMap
 
 			public static void Prefix()
 			{
+<<<<<<< HEAD
 				HeatMapControl.Instance.showUI();
 				updateTempInfo();
 			}	
+=======
+				if(!effect){
+					SimDebugView.ColorThreshold[] tmp = SimDebugView.Instance.temperatureThresholds;
+					colorThreshold = new SimDebugView.ColorThreshold[tmp.Length];
+					for (int i = 0; i<tmp.Length ; i++){
+						colorThreshold[i] = tmp[i];
+					}
+					lowerBound = tmp[1].value;
+					lowerBound = tmp[tmp.Length-2].value;
+					effect = true;
+				}
+				float step = (maxTemp - lowerBound) / (colorThreshold.Length - 2);
+
+				HeatMap.showUI();
+				for(int i = 1; i < colorThreshold.Length - 1; i++){
+					if(modified){
+						float currentVal = colorThreshold[i].value;					
+						float b = lowerBound + step * (i-1);
+						SimDebugView.Instance.temperatureThresholds[i].value = b;
+					}else{
+						SimDebugView.Instance.temperatureThresholds[i] = tmp[i]
+					}
+				}
+			}
+
+		
+>>>>>>> 35e6b97 (remove debug log)
 		}
 		[HarmonyPatch(typeof(OverlayScreen))]
 		[HarmonyPatch("Refresh")]
