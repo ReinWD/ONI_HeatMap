@@ -71,8 +71,7 @@
 
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src/HeatMapControl.cs" />
-    <Compile Include="src/HeatMapPatch.cs" />
+    <Compile Include="src/*" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

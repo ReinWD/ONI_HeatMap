@@ -1,0 +1,39 @@
+msgid ""
+msgstr ""
+"Application: Oxygen Not IncludedPOT Version: 2.0\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.2\n"
+"Last-Translator: Ventulus\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: zh_CN\n"
+
+#. reinwd.HeatMap.HeatMapStrings.UI_TITLE
+msgctxt "reinwd.HeatMap.HeatMapStrings.UI_TITLE"
+msgid "Tempreature Control"
+msgstr "温度控制"
+
+#. reinwd.HeatMap.HeatMapStrings.UI_LOWERBOUND
+msgctxt "reinwd.HeatMap.HeatMapStrings.UI_LOWERBOUND"
+msgid "Lower Bound"
+msgstr "温度下限"
+
+#. reinwd.HeatMap.HeatMapStrings.UI_UPPERBOUND
+msgctxt "reinwd.HeatMap.HeatMapStrings.UI_UPPERBOUND"
+msgid "Upper Bound"
+msgstr "温度上限"
+
+#. reinwd.HeatMap.HeatMapStrings.UI_RESET
+msgctxt "reinwd.HeatMap.HeatMapStrings.UI_RESET"
+msgid "Reset"
+msgstr "重置"
+
+#. reinwd.HeatMap.HeatMapStrings.UI_KEEP_TEMP_DIST
+msgctxt "reinwd.HeatMap.HeatMapStrings.UI_KEEP_TEMP_DIST"
+msgid "Keep Tempreature Gap"
+msgstr "保持温度差"

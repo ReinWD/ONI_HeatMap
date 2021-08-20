@@ -42,7 +42,7 @@ namespace reinwd.HeatMap{
 		/// <summary>
 		/// The spacing between each row.
 		/// </summary>
-		internal const int ROW_SPACING = 2;
+		internal const int ROW_SPACING = 5;
 
 
         public bool uiInited = false;
@@ -51,11 +51,6 @@ namespace reinwd.HeatMap{
 		/// The root panel of the whole control.
 		/// </summary>
 		public GameObject RootPanel { get; set;}
-
-		/// <summary>
-		/// The "all items" checkbox.
-		/// </summary>
-		private GameObject allItems;
 
         private int HandleSize = 30;
 
@@ -68,26 +63,66 @@ namespace reinwd.HeatMap{
 		private GameObject resetButton;
 		private PCheckBox linkCheckBox;
 		private GameObject linkCheckBoxObj;
+		private bool linked {get; set;}
 
         public static float lowerBound = 273 + 125;
 		public static float upperBound = 273 + 500;
 		public static bool modified = false;
 		public static SimDebugView.ColorThreshold[] colorThreshold;
 
+		
+		public static void updateTempInfo(){
+			var lowerBound = HeatMapControl.lowerBound;
+			var maxTemp = HeatMapControl.upperBound;
+			var modified = HeatMapControl.modified;
+			var colorThreshold = HeatMapControl.colorThreshold;
+
+			float lowest = colorThreshold[0].value;
+			float highest = colorThreshold[colorThreshold.Length - 1].value;
+
+			float step1 = (lowerBound - lowest) / (4);
+			float step2 = (maxTemp - lowerBound) / (colorThreshold.Length - 5);
+
+
+			//default to be coldest blue to green
+			for(int i = 0; i < 3; i++){
+				if(modified){
+					float currentVal = colorThreshold[i].value;					
+					float b = lowest + step1 * (i);
+					SimDebugView.Instance.temperatureThresholds[i].value = b;
+				}else{
+					SimDebugView.Instance.temperatureThresholds[i] = colorThreshold[i];
+				}
+			}
+			//green to orange
+			for(int i = 3; i < colorThreshold.Length - 1; i++){	
+				if(modified){
+					float currentVal = colorThreshold[i].value;					
+					float b = lowerBound + step2 * (i-3);
+					SimDebugView.Instance.temperatureThresholds[i].value = b;
+				}else{
+					SimDebugView.Instance.temperatureThresholds[i] = colorThreshold[i];
+				}
+			}
+		}	
+
 		public void showUI(){
-			if(!uiInited){
+			if(!uiInited ){
 				initUI();
 			}
+			if(RootPanel == null){
+				Debug.Log("Root Panel null!");
+				initUI();
+			}
+			
             RootPanel.SetParent(ToolMenu.Instance.gameObject);
             RootPanel.transform.SetAsFirstSibling();
             RootPanel.SetActive(true);
-			Debug.Log("HeatMapControl：open panel");
 		}
 
 		public void hideUI(){
             if(uiInited){
                 RootPanel.SetActive(false);
-			    Debug.Log("HeatMapControl：close Panel");
             }
         }
 
@@ -103,30 +138,36 @@ namespace reinwd.HeatMap{
 			HeatMapControl.lowerBound = tmp[tmp.Length-2].value;	
            	
 			this.lowerLabel = new PLabel("lowerLabel"){
-            		Text = lowerBound.ToString(),
+            		Text = HeatMapStrings.UI_LOWERBOUND,
             		TextAlignment = TextAnchor.MiddleLeft,FlexSize = Vector2.right, Margin = ELEMENT_MARGIN,
 					DynamicSize = true,
 					TextStyle = PUITuning.Fonts.TextDarkStyle,
             };
 			this.upperLabel = new PLabel("upperLabel"){
-            	Text = upperBound.ToString(),
+            	Text = HeatMapStrings.UI_UPPERBOUND,
             	TextAlignment = TextAnchor.MiddleLeft,FlexSize = Vector2.right, Margin = ELEMENT_MARGIN,
 				Sprite = PUITuning.Images.BoxBorder, SpriteMode = Image.Type.Sliced,
 				TextStyle = PUITuning.Fonts.TextDarkStyle,
             };
 			// Scroll to select elements
 			var sp = new PScrollPane("Scroll") {
-				ScrollHorizontal = false, ScrollVertical = true,
-				AlwaysShowVertical = true, TrackSize = 8.0f, FlexSize = Vector2.one
+				ScrollHorizontal = false, 
+				ScrollVertical = true,
+				AlwaysShowVertical = false, 
+				TrackSize = 8.0f,
+				FlexSize = Vector2.one
             };
             var insidePanel = new PPanel("bars"){
-					Spacing = ROW_SPACING, Margin = new RectOffset(INDENT, 0, 0, 0),
+					Spacing = ROW_SPACING, Margin = new RectOffset(0, 0, 0, 0),
 					Alignment = TextAnchor.UpperLeft,
             };
          	this.linkCheckBox = new PCheckBox("linkCheckBox"){
-					Text = "保持温度差",
+					Text = HeatMapStrings.UI_KEEP_TEMP_DIST,
 					InitialState = PCheckBox.STATE_UNCHECKED,
 					TextStyle = PUITuning.Fonts.TextDarkStyle,
+					OnChecked = OnCheck,
+					CheckSize = ROW_SIZE,
+					SpriteSize = ROW_SIZE,
 			}.AddOnRealize(cbx => this.linkCheckBoxObj = cbx);
             
 			insidePanel.AddChild( 
@@ -139,7 +180,8 @@ namespace reinwd.HeatMap{
            		    MaxValue = colorThreshold[colorThreshold.Length-1].value,
            		    MinValue = colorThreshold[0].value,
            		    HandleSize = this.HandleSize,
-           		    PreferredLength = PANEL_SIZE.x - 40,
+           		    PreferredLength = PANEL_SIZE.x - 50,
+					ToolTip = "{0} K"
            		}.AddOnRealize(slider => this.lowerSlider = slider)
             ).AddChild(
 				this.upperLabel
@@ -151,19 +193,20 @@ namespace reinwd.HeatMap{
             	    MinValue = colorThreshold[0].value,
             	    HandleSize = this.HandleSize,
             	    PreferredLength = PANEL_SIZE.x - 40,
+					ToolTip = "{0} K"
             	}.AddOnRealize(slider =>this.upperSlider = slider)
-            ).AddChild(	
+            ).AddChild(
+				this.linkCheckBox
+			).AddChild(	
 				new PButton("resetButton"){
-					Text = "重置",
+					Text = HeatMapStrings.UI_RESET,
 					OnClick = OnReset,
 				}.AddOnRealize(btn =>this.resetButton = btn)
-			).AddChild(
-				this.linkCheckBox
 			);
             sp.Child = insidePanel;
 			// Title bar
 			var title = new PLabel("Title") {
-				TextAlignment = TextAnchor.MiddleCenter, Text = "温度控制"
+				TextAlignment = TextAnchor.MiddleCenter, Text = HeatMapStrings.UI_TITLE
                 , FlexSize = Vector2.right, Margin = TITLE_MARGIN,
 			}.SetKleiPinkColor();
 			// 1px black border on the rest of the dialog for contrast
@@ -183,37 +226,44 @@ namespace reinwd.HeatMap{
             uiInited = true;
 		}
 
+		private string getLowerBound(){
+			return lowerBound.ToString();
+		}
+
+		private string getUpperBound(){
+			return upperBound.ToString();
+		}
+
         private void onUpperChanged(GameObject source, float newValue){
             modified = true;
 		
 			var orig = upperBound;
+			var step = upperBound - lowerBound;
             upperBound = newValue;
             upperLabel.Text = newValue.ToString();
 
 			if(isLinked()){
- 				lowerBound = newValue + (orig - lowerBound);
+ 				lowerBound = newValue - step;
 				PSliderSingle.SetCurrentValue(lowerSlider, lowerBound);
-            	lowerLabel.Text = newValue.ToString();
 			}
             OverlayScreen.Instance.Refresh();
         }
 
         private void onLowerChanged(GameObject source, float newValue){
             modified = true;
-			var orig = upperBound;
+			var orig = lowerBound;
+			var step = upperBound - lowerBound;
             lowerBound = newValue;
-            lowerLabel.Text = newValue.ToString();
-
+			
 			if(isLinked()){
- 				upperBound = newValue + (orig - upperBound);
+ 				upperBound = newValue + step;
 				PSliderSingle.SetCurrentValue(upperSlider, upperBound);
-            	upperLabel.Text = newValue.ToString();
 			}
             OverlayScreen.Instance.Refresh();
         }
 
 		private bool isLinked(){
-			return PCheckBox.GetCheckState(linkCheckBoxObj) == PCheckBox.STATE_CHECKED;
+			return this.linked;
 		}
 
         private void OnReset(GameObject source){
@@ -225,12 +275,13 @@ namespace reinwd.HeatMap{
 			upperLabel.Text = upperBound.ToString();
 			PSliderSingle.SetCurrentValue(upperSlider, upperBound);
 			modified = false;
-			
+			updateTempInfo();
 		}
 
 		
         private void OnCheck(GameObject source, int state){
-
+			this.linked = state == PCheckBox.STATE_UNCHECKED;
+			PCheckBox.SetCheckState(linkCheckBoxObj, this.linked? PCheckBox.STATE_CHECKED : PCheckBox.STATE_UNCHECKED);
         }
 
 		/// <summary>
@@ -242,5 +293,7 @@ namespace reinwd.HeatMap{
 				ConsumeMouseScroll = true;
 			}
 		}
+
+		
     }
 }
